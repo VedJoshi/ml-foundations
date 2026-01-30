@@ -1,6 +1,6 @@
 # Principal Component Analysis (PCA)
 
-PCA is the most important dimensionality reduction technique. It finds the directions of maximum variance in data and projects onto them. Understanding PCA connects linear algebra (eigendecomposition, SVD) to statistics (variance, covariance) to optimization (maximizing a quadratic form).
+Dimensionality reduction technique. It finds the directions of maximum variance in data and projects onto them.
 
 ---
 
@@ -34,7 +34,7 @@ C is symmetric positive semi-definite.
 
 ### Finding the First Principal Component
 
-I want to find direction w ∈ ℝᵈ (unit vector, ||w|| = 1) such that the variance of the projection Xw is maximized.
+Find direction w ∈ ℝᵈ (unit vector, ||w|| = 1) such that the variance of the projection Xw is maximized.
 
 The projected data is z = Xw ∈ ℝⁿ.
 
@@ -43,7 +43,7 @@ Variance of projection:
 Var(z) = (1/n) Σᵢ (wᵀxᵢ)² = (1/n) ||Xw||² = (1/n) wᵀXᵀXw = wᵀCw
 ```
 
-So I want to maximize wᵀCw subject to ||w|| = 1.
+Therefore maximize wᵀCw subject to ||w|| = 1.
 
 ### Lagrangian
 

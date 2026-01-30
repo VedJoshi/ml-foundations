@@ -1,6 +1,6 @@
 # K-Means Clustering
 
-K-means is the classic unsupervised learning algorithm. No labels - just find structure in data. Understanding k-means deeply reveals important concepts: objective functions for clustering, iterative optimization, local minima, and connections to Gaussian mixture models.
+Objective functions for clustering, iterative optimization, local minima, and connections to Gaussian mixture models.
 
 ---
 
@@ -285,7 +285,7 @@ K-means partitions space into **Voronoi cells**:
 4. How does feature scaling affect k-means?
 
 ### Implementations
-1. [ ] Implement k-means from scratch (done above, do it yourself)
+1. [ ] Implement k-means from scratch
 2. [ ] Implement k-means++ initialization
 3. [ ] Implement the elbow method for choosing K
 4. [ ] Implement silhouette score
