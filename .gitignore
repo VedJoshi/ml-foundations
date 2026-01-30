@@ -1,3 +1,6 @@
+# Claude Code local documentation (personal notes, not for GitHub)
+.claude/
+
 # Virtual environment
 venv/
 .venv/
