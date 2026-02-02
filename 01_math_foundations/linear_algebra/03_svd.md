@@ -2,25 +2,23 @@
 
 ## Definition
 
-For any A ∈ ℝᵐˣⁿ:
-```
-A = UΣVᵀ
-```
-- U ∈ ℝᵐˣᵐ orthogonal (left singular vectors)
-- Σ ∈ ℝᵐˣⁿ diagonal, σ₁ ≥ σ₂ ≥ ... ≥ 0 (singular values)
-- V ∈ ℝⁿˣⁿ orthogonal (right singular vectors)
+For any $A \in \mathbb{R}^{m \times n}$:
 
-**Thin SVD:** A = UᵣΣᵣVᵣᵀ where r = rank(A)
+$$A = U\Sigma V^\top$$
+
+- $U \in \mathbb{R}^{m \times m}$ orthogonal (left singular vectors)
+- $\Sigma \in \mathbb{R}^{m \times n}$ diagonal, $\sigma_1 \geq \sigma_2 \geq \ldots \geq 0$ (singular values)
+- $V \in \mathbb{R}^{n \times n}$ orthogonal (right singular vectors)
+
+**Thin SVD:** $A = U_r \Sigma_r V_r^\top$ where $r = \text{rank}(A)$
 
 ---
 
 ## Relation to Eigendecomposition
 
-```
-AᵀA = V(ΣᵀΣ)Vᵀ  →  V = eigenvectors of AᵀA
-AAᵀ = U(ΣΣᵀ)Uᵀ  →  U = eigenvectors of AAᵀ
-σᵢ² = eigenvalues of AᵀA
-```
+$$A^\top A = V(\Sigma^\top \Sigma)V^\top \quad \Rightarrow \quad V = \text{eigenvectors of } A^\top A$$
+$$AA^\top = U(\Sigma \Sigma^\top)U^\top \quad \Rightarrow \quad U = \text{eigenvectors of } AA^\top$$
+$$\sigma_i^2 = \text{eigenvalues of } A^\top A$$
 
 ---
 
@@ -28,43 +26,41 @@ AAᵀ = U(ΣΣᵀ)Uᵀ  →  U = eigenvectors of AAᵀ
 
 | Subspace | Basis | Dim |
 |----------|-------|-----|
-| col(A) | First r cols of U | r |
-| row(A) | First r cols of V | r |
-| null(A) | Last n-r cols of V | n-r |
-| null(Aᵀ) | Last m-r cols of U | m-r |
+| $\text{col}(A)$ | First $r$ cols of $U$ | $r$ |
+| $\text{row}(A)$ | First $r$ cols of $V$ | $r$ |
+| $\text{null}(A)$ | Last $n-r$ cols of $V$ | $n-r$ |
+| $\text{null}(A^\top)$ | Last $m-r$ cols of $U$ | $m-r$ |
 
 ---
 
 ## Low-Rank Approximation
 
-Eckart-Young: Aₖ = Σᵢ₌₁ᵏ σᵢuᵢvᵢᵀ is best rank-k approximation.
+Eckart-Young: $A_k = \sum_{i=1}^{k} \sigma_i u_i v_i^\top$ is best rank-$k$ approximation.
 
-```
-||A - Aₖ||_F = √(σₖ₊₁² + ... + σᵣ²)
-||A - Aₖ||_2 = σₖ₊₁
-```
+$$\|A - A_k\|_F = \sqrt{\sigma_{k+1}^2 + \ldots + \sigma_r^2}$$
+$$\|A - A_k\|_2 = \sigma_{k+1}$$
 
 ---
 
 ## Pseudoinverse
 
-A⁺ = VΣ⁺Uᵀ (reciprocals of nonzero singular values)
+$A^+ = V\Sigma^+ U^\top$ (reciprocals of nonzero singular values)
 
-- Overdetermined Ax = b: x* = A⁺b minimizes ||Ax - b||²
-- Underdetermined: A⁺b gives minimum-norm solution
+- Overdetermined $Ax = b$: $x^* = A^+ b$ minimizes $\|Ax - b\|^2$
+- Underdetermined: $A^+ b$ gives minimum-norm solution
 
 ---
 
 ## PCA via SVD
 
-For centered X ∈ ℝⁿˣᵈ:
-```
-X = UΣVᵀ
-```
-- Principal components: columns of V
-- Variance along PC i: σᵢ²/n
-- Covariance: C = (1/n)XᵀX = V(Σ²/n)Vᵀ
-- Projection: Z = XVₖ = UₖΣₖ
+For centered $X \in \mathbb{R}^{n \times d}$:
+
+$$X = U\Sigma V^\top$$
+
+- Principal components: columns of $V$
+- Variance along PC $i$: $\sigma_i^2/n$
+- Covariance: $C = \frac{1}{n}X^\top X = V(\Sigma^2/n)V^\top$
+- Projection: $Z = XV_k = U_k\Sigma_k$
 
 ---
 
@@ -72,7 +68,7 @@ X = UΣVᵀ
 
 ```python
 U, s, Vt = np.linalg.svd(A, full_matrices=False)
-# Returns Vᵀ, not V
+# Returns V^T, not V
 ```
 
 ---
@@ -81,20 +77,20 @@ U, s, Vt = np.linalg.svd(A, full_matrices=False)
 
 | Item | Formula |
 |------|---------|
-| Full SVD | A = UΣVᵀ |
-| Singular values | σᵢ = √(eigenvalue of AᵀA) |
-| Rank-k approx | Aₖ = Σᵢ₌₁ᵏ σᵢuᵢvᵢᵀ |
-| Frobenius norm | \|\|A\|\|_F = √(Σσᵢ²) |
-| Spectral norm | \|\|A\|\|_2 = σ₁ |
-| Condition number | κ(A) = σ₁/σᵣ |
-| Pseudoinverse | A⁺ = VΣ⁺Uᵀ |
+| Full SVD | $A = U\Sigma V^\top$ |
+| Singular values | $\sigma_i = \sqrt{\text{eigenvalue of } A^\top A}$ |
+| Rank-$k$ approx | $A_k = \sum_{i=1}^{k} \sigma_i u_i v_i^\top$ |
+| Frobenius norm | $\|A\|_F = \sqrt{\sum_i \sigma_i^2}$ |
+| Spectral norm | $\|A\|_2 = \sigma_1$ |
+| Condition number | $\kappa(A) = \sigma_1/\sigma_r$ |
+| Pseudoinverse | $A^+ = V\Sigma^+ U^\top$ |
 
 ---
 
 ## Modern ML Connections
 
 - **Attention:** Low-rank approximations (Linformer, Performer)
-- **Compression:** W ≈ UₖΣₖVₖᵀ reduces parameters
+- **Compression:** $W \approx U_k\Sigma_k V_k^\top$ reduces parameters
 - **Embeddings:** Matrix factorization methods
 
 ---
@@ -104,4 +100,4 @@ U, s, Vt = np.linalg.svd(A, full_matrices=False)
 1. Implement SVD-based PCA
 2. Image compression via truncated SVD
 3. Implement pseudoinverse, verify least squares
-4. Condition number of Hilbert matrix for n = 5, 10, 15
+4. Condition number of Hilbert matrix for $n = 5, 10, 15$

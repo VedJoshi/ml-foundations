@@ -6,45 +6,37 @@
 
 A 2-layer MLP (one hidden layer):
 
-```
-Input x ∈ ℝ^{d_in}
-    ↓
-Hidden layer: h = σ(W₁x + b₁)
-    ↓
-Output layer: ŷ = W₂h + b₂
-```
+$$x \in \mathbb{R}^{d_{\text{in}}} \to h = \sigma(W_1 x + b_1) \to \hat{y} = W_2 h + b_2$$
 
 Where:
-- W₁ ∈ ℝ^{d_h × d_in}, b₁ ∈ ℝ^{d_h} (hidden layer parameters)
-- W₂ ∈ ℝ^{d_out × d_h}, b₂ ∈ ℝ^{d_out} (output layer parameters)
-- σ is the activation function
+- $W_1 \in \mathbb{R}^{d_h \times d_{\text{in}}}$, $b_1 \in \mathbb{R}^{d_h}$ (hidden layer parameters)
+- $W_2 \in \mathbb{R}^{d_{\text{out}} \times d_h}$, $b_2 \in \mathbb{R}^{d_{\text{out}}}$ (output layer parameters)
+- $\sigma$ is the activation function
 
 For regression with MSE loss:
-```
-L = (1/2)||ŷ - y||²
-```
+
+$$L = \frac{1}{2}\|\hat{y} - y\|^2$$
 
 ### Notation
 
-- z₁ = W₁x + b₁ (pre-activation of hidden layer)
-- h = σ(z₁) (post-activation / hidden layer output)
-- z₂ = W₂h + b₂ (pre-activation of output = final output for regression)
-- ŷ = z₂
+- $z_1 = W_1 x + b_1$ (pre-activation of hidden layer)
+- $h = \sigma(z_1)$ (post-activation / hidden layer output)
+- $z_2 = W_2 h + b_2$ (pre-activation of output = final output for regression)
+- $\hat{y} = z_2$
 
 Full forward pass:
-```
-x → z₁ = W₁x + b₁ → h = σ(z₁) → z₂ = W₂h + b₂ → ŷ → L
-```
+
+$$x \to z_1 = W_1 x + b_1 \to h = \sigma(z_1) \to z_2 = W_2 h + b_2 \to \hat{y} \to L$$
 
 ---
 
 ## Goal
 
 Compute all parameter gradients:
-- ∂L/∂W₂, ∂L/∂b₂ (output layer)
-- ∂L/∂W₁, ∂L/∂b₁ (hidden layer)
+- $\frac{\partial L}{\partial W_2}$, $\frac{\partial L}{\partial b_2}$ (output layer)
+- $\frac{\partial L}{\partial W_1}$, $\frac{\partial L}{\partial b_1}$ (hidden layer)
 
-Then update: θ ← θ - α ∂L/∂θ where α is the learning rate.
+Then update: $\theta \leftarrow \theta - \alpha \frac{\partial L}{\partial \theta}$ where $\alpha$ is the learning rate.
 
 ---
 
@@ -65,172 +57,155 @@ loss = 0.5 * np.sum((y_hat - y)**2)  # scalar
 
 ### Step 1: Gradient w.r.t. Output Layer
 
-**∂L/∂z₂:**
+**$\frac{\partial L}{\partial z_2}$:**
 
-For MSE loss L = (1/2)Σⱼ(ŷⱼ - yⱼ)²:
-```
-∂L/∂ŷⱼ = ŷⱼ - yⱼ
-```
+For MSE loss $L = \frac{1}{2}\sum_j(\hat{y}_j - y_j)^2$:
 
-Since ŷ = z₂:
-```
-δ₂ ≡ ∂L/∂z₂ = ŷ - y
-```
+$$\frac{\partial L}{\partial \hat{y}_j} = \hat{y}_j - y_j$$
 
-δ₂ is the output error signal.
+Since $\hat{y} = z_2$:
 
-**∂L/∂W₂:**
+$$\delta_2 \equiv \frac{\partial L}{\partial z_2} = \hat{y} - y$$
 
-Since z₂ᵢ = Σₖ W₂ᵢₖhₖ + b₂ᵢ:
-```
-∂z₂ᵢ/∂W₂ᵢⱼ = hⱼ
-```
+$\delta_2$ is the output error signal.
+
+**$\frac{\partial L}{\partial W_2}$:**
+
+Since $z_{2i} = \sum_k W_{2ik} h_k + b_{2i}$:
+
+$$\frac{\partial z_{2i}}{\partial W_{2ij}} = h_j$$
 
 By chain rule:
-```
-∂L/∂W₂ᵢⱼ = (∂L/∂z₂ᵢ)(∂z₂ᵢ/∂W₂ᵢⱼ) = δ₂ᵢ · hⱼ
-```
+
+$$\frac{\partial L}{\partial W_{2ij}} = \frac{\partial L}{\partial z_{2i}} \cdot \frac{\partial z_{2i}}{\partial W_{2ij}} = \delta_{2i} \cdot h_j$$
 
 In matrix form (outer product):
-```
-∂L/∂W₂ = δ₂ · hᵀ ∈ ℝ^{d_out × d_h}
-```
 
-**∂L/∂b₂:**
-```
-∂z₂ᵢ/∂b₂ᵢ = 1
+$$\frac{\partial L}{\partial W_2} = \delta_2 \cdot h^\top \in \mathbb{R}^{d_{\text{out}} \times d_h}$$
 
-∂L/∂b₂ = δ₂ ∈ ℝ^{d_out}
-```
+**$\frac{\partial L}{\partial b_2}$:**
 
-### Step 2: Backpropagate Through W₂
+$$\frac{\partial z_{2i}}{\partial b_{2i}} = 1$$
 
-**∂L/∂h:**
+$$\frac{\partial L}{\partial b_2} = \delta_2 \in \mathbb{R}^{d_{\text{out}}}$$
 
-z₂ depends on h:
-```
-∂L/∂hⱼ = Σᵢ (∂L/∂z₂ᵢ)(∂z₂ᵢ/∂hⱼ) = Σᵢ δ₂ᵢ · W₂ᵢⱼ
-```
+### Step 2: Backpropagate Through $W_2$
+
+**$\frac{\partial L}{\partial h}$:**
+
+$z_2$ depends on $h$:
+
+$$\frac{\partial L}{\partial h_j} = \sum_i \frac{\partial L}{\partial z_{2i}} \cdot \frac{\partial z_{2i}}{\partial h_j} = \sum_i \delta_{2i} \cdot W_{2ij}$$
 
 In matrix form:
-```
-∂L/∂h = W₂ᵀ · δ₂ ∈ ℝ^{d_h}
-```
+
+$$\frac{\partial L}{\partial h} = W_2^\top \cdot \delta_2 \in \mathbb{R}^{d_h}$$
 
 Error propagates backward through the transpose of the weight matrix.
 
 ### Step 3: Backpropagate Through Activation
 
-**∂L/∂z₁:**
+**$\frac{\partial L}{\partial z_1}$:**
 
-Since h = σ(z₁), by chain rule:
-```
-∂L/∂z₁ⱼ = (∂L/∂hⱼ)(∂hⱼ/∂z₁ⱼ) = (∂L/∂hⱼ) · σ'(z₁ⱼ)
-```
+Since $h = \sigma(z_1)$, by chain rule:
+
+$$\frac{\partial L}{\partial z_{1j}} = \frac{\partial L}{\partial h_j} \cdot \frac{\partial h_j}{\partial z_{1j}} = \frac{\partial L}{\partial h_j} \cdot \sigma'(z_{1j})$$
 
 Element-wise:
-```
-δ₁ ≡ ∂L/∂z₁ = (W₂ᵀδ₂) ⊙ σ'(z₁)
-```
 
-where ⊙ denotes element-wise (Hadamard) multiplication.
+$$\delta_1 \equiv \frac{\partial L}{\partial z_1} = (W_2^\top \delta_2) \odot \sigma'(z_1)$$
+
+where $\odot$ denotes element-wise (Hadamard) multiplication.
 
 ### Step 4: Gradient w.r.t. Hidden Layer
 
 Following the same pattern as the output layer:
 
-**∂L/∂W₁:**
-```
-∂L/∂W₁ = δ₁ · xᵀ ∈ ℝ^{d_h × d_in}
-```
+**$\frac{\partial L}{\partial W_1}$:**
 
-**∂L/∂b₁:**
-```
-∂L/∂b₁ = δ₁ ∈ ℝ^{d_h}
-```
+$$\frac{\partial L}{\partial W_1} = \delta_1 \cdot x^\top \in \mathbb{R}^{d_h \times d_{\text{in}}}$$
+
+**$\frac{\partial L}{\partial b_1}$:**
+
+$$\frac{\partial L}{\partial b_1} = \delta_1 \in \mathbb{R}^{d_h}$$
 
 ---
 
 ## Summary: The Backprop Equations
 
 **Forward:**
-```
-z₁ = W₁x + b₁
-h = σ(z₁)
-z₂ = W₂h + b₂
-ŷ = z₂
-L = (1/2)||ŷ - y||²
-```
+
+$$z_1 = W_1 x + b_1$$
+$$h = \sigma(z_1)$$
+$$z_2 = W_2 h + b_2$$
+$$\hat{y} = z_2$$
+$$L = \frac{1}{2}\|\hat{y} - y\|^2$$
 
 **Backward:**
-```
-δ₂ = ŷ - y                          # Output error
-∂L/∂W₂ = δ₂ · hᵀ                    # Outer product
-∂L/∂b₂ = δ₂
 
-δ₁ = (W₂ᵀ · δ₂) ⊙ σ'(z₁)           # Hidden error (backprop through W₂ and σ)
-∂L/∂W₁ = δ₁ · xᵀ                    # Outer product
-∂L/∂b₁ = δ₁
-```
+$$\delta_2 = \hat{y} - y \quad \text{(output error)}$$
+$$\frac{\partial L}{\partial W_2} = \delta_2 \cdot h^\top \quad \text{(outer product)}$$
+$$\frac{\partial L}{\partial b_2} = \delta_2$$
+
+$$\delta_1 = (W_2^\top \cdot \delta_2) \odot \sigma'(z_1) \quad \text{(hidden error)}$$
+$$\frac{\partial L}{\partial W_1} = \delta_1 \cdot x^\top \quad \text{(outer product)}$$
+$$\frac{\partial L}{\partial b_1} = \delta_1$$
 
 **Update:**
-```
-W₂ ← W₂ - α · ∂L/∂W₂
-b₂ ← b₂ - α · ∂L/∂b₂
-W₁ ← W₁ - α · ∂L/∂W₁
-b₁ ← b₁ - α · ∂L/∂b₁
-```
+
+$$W_2 \leftarrow W_2 - \alpha \cdot \frac{\partial L}{\partial W_2}$$
+$$b_2 \leftarrow b_2 - \alpha \cdot \frac{\partial L}{\partial b_2}$$
+$$W_1 \leftarrow W_1 - \alpha \cdot \frac{\partial L}{\partial W_1}$$
+$$b_1 \leftarrow b_1 - \alpha \cdot \frac{\partial L}{\partial b_1}$$
 
 ---
 
 ## Activation Functions
 
 ### ReLU
-```
-σ(z) = max(0, z)
-σ'(z) = 1 if z > 0, else 0
-```
-No vanishing gradient for z > 0. "Dead neurons" can occur if z < 0 always.
+
+$$\sigma(z) = \max(0, z)$$
+$$\sigma'(z) = \begin{cases} 1 & \text{if } z > 0 \\ 0 & \text{otherwise} \end{cases}$$
+
+No vanishing gradient for $z > 0$. "Dead neurons" can occur if $z < 0$ always.
 
 ### Sigmoid
-```
-σ(z) = 1/(1 + e^{-z})
-σ'(z) = σ(z)(1 - σ(z))
-```
-Outputs in (0, 1). Vanishing gradient for |z| large, not zero-centered.
+
+$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+$$\sigma'(z) = \sigma(z)(1 - \sigma(z))$$
+
+Outputs in $(0, 1)$. Vanishing gradient for $|z|$ large, not zero-centered.
 
 ### Tanh
-```
-σ(z) = (e^z - e^{-z})/(e^z + e^{-z})
-σ'(z) = 1 - σ(z)²
-```
-Zero-centered. Still vanishes for |z| large.
+
+$$\sigma(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$
+$$\sigma'(z) = 1 - \sigma(z)^2$$
+
+Zero-centered. Still vanishes for $|z|$ large.
 
 ---
 
 ## Batch Processing
 
-For a minibatch of m samples, let X ∈ ℝ^{d_in × m} (samples as columns).
+For a minibatch of $m$ samples, let $X \in \mathbb{R}^{d_{\text{in}} \times m}$ (samples as columns).
 
 **Forward:**
-```
-Z₁ = W₁X + b₁  (broadcasting b₁)    # (d_h, m)
-H = σ(Z₁)                            # (d_h, m)
-Z₂ = W₂H + b₂                        # (d_out, m)
-Ŷ = Z₂                               # (d_out, m)
-L = (1/2m) ||Ŷ - Y||²_F              # scalar (Frobenius norm)
-```
+
+$$Z_1 = W_1 X + b_1 \quad \text{(broadcasting } b_1\text{)} \quad \in \mathbb{R}^{d_h \times m}$$
+$$H = \sigma(Z_1) \quad \in \mathbb{R}^{d_h \times m}$$
+$$Z_2 = W_2 H + b_2 \quad \in \mathbb{R}^{d_{\text{out}} \times m}$$
+$$\hat{Y} = Z_2 \quad \in \mathbb{R}^{d_{\text{out}} \times m}$$
+$$L = \frac{1}{2m} \|\hat{Y} - Y\|_F^2 \quad \text{(scalar, Frobenius norm)}$$
 
 **Backward:**
-```
-Δ₂ = (1/m)(Ŷ - Y)                    # (d_out, m)
-∂L/∂W₂ = Δ₂ · Hᵀ                     # (d_out, d_h)
-∂L/∂b₂ = sum over columns of Δ₂      # (d_out,)
 
-Δ₁ = (W₂ᵀΔ₂) ⊙ σ'(Z₁)               # (d_h, m)
-∂L/∂W₁ = Δ₁ · Xᵀ                     # (d_h, d_in)
-∂L/∂b₁ = sum over columns of Δ₁      # (d_h,)
-```
+$$\Delta_2 = \frac{1}{m}(\hat{Y} - Y) \quad \in \mathbb{R}^{d_{\text{out}} \times m}$$
+$$\frac{\partial L}{\partial W_2} = \Delta_2 \cdot H^\top \quad \in \mathbb{R}^{d_{\text{out}} \times d_h}$$
+$$\frac{\partial L}{\partial b_2} = \text{sum over columns of } \Delta_2 \quad \in \mathbb{R}^{d_{\text{out}}}$$
+
+$$\Delta_1 = (W_2^\top \Delta_2) \odot \sigma'(Z_1) \quad \in \mathbb{R}^{d_h \times m}$$
+$$\frac{\partial L}{\partial W_1} = \Delta_1 \cdot X^\top \quad \in \mathbb{R}^{d_h \times d_{\text{in}}}$$
+$$\frac{\partial L}{\partial b_1} = \text{sum over columns of } \Delta_1 \quad \in \mathbb{R}^{d_h}$$
 
 Matrix multiplications replace vector outer products. Bias gradients sum over samples.
 
@@ -239,36 +214,33 @@ Matrix multiplications replace vector outer products. Bias gradients sum over sa
 ## Numerical Example
 
 **Setup:**
-- d_in = 2, d_h = 2, d_out = 1
-- x = [1, 2]ᵀ
-- y = [1]
-- W₁ = [[0.1, 0.2], [0.3, 0.4]], b₁ = [0, 0]ᵀ
-- W₂ = [[0.5, 0.6]], b₂ = [0]
+- $d_{\text{in}} = 2$, $d_h = 2$, $d_{\text{out}} = 1$
+- $x = [1, 2]^\top$
+- $y = [1]$
+- $W_1 = \begin{bmatrix} 0.1 & 0.2 \\ 0.3 & 0.4 \end{bmatrix}$, $b_1 = [0, 0]^\top$
+- $W_2 = [0.5, 0.6]$, $b_2 = [0]$
 - ReLU activation
 
 **Forward:**
-```
-z₁ = W₁x + b₁ = [[0.1, 0.2], [0.3, 0.4]] @ [1, 2]ᵀ = [0.5, 1.1]ᵀ
-h = ReLU(z₁) = [0.5, 1.1]ᵀ  (both positive)
-z₂ = W₂h + b₂ = [0.5, 0.6] @ [0.5, 1.1]ᵀ = [0.91]
-ŷ = 0.91
-L = 0.5 * (0.91 - 1)² = 0.00405
-```
+
+$$z_1 = W_1 x + b_1 = \begin{bmatrix} 0.1 & 0.2 \\ 0.3 & 0.4 \end{bmatrix} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \begin{bmatrix} 0.5 \\ 1.1 \end{bmatrix}$$
+$$h = \text{ReLU}(z_1) = [0.5, 1.1]^\top \quad \text{(both positive)}$$
+$$z_2 = W_2 h + b_2 = [0.5, 0.6] \cdot [0.5, 1.1]^\top = [0.91]$$
+$$\hat{y} = 0.91$$
+$$L = 0.5 \times (0.91 - 1)^2 = 0.00405$$
 
 **Backward:**
-```
-δ₂ = ŷ - y = -0.09
 
-∂L/∂W₂ = δ₂ · hᵀ = [-0.09] @ [0.5, 1.1] = [[-0.045, -0.099]]
-∂L/∂b₂ = [-0.09]
+$$\delta_2 = \hat{y} - y = -0.09$$
+$$\frac{\partial L}{\partial W_2} = \delta_2 \cdot h^\top = [-0.09] \cdot [0.5, 1.1] = [-0.045, -0.099]$$
+$$\frac{\partial L}{\partial b_2} = [-0.09]$$
 
-∂L/∂h = W₂ᵀ · δ₂ = [[0.5], [0.6]] @ [-0.09] = [-0.045, -0.054]ᵀ
-σ'(z₁) = [1, 1]ᵀ  (both z₁ > 0)
-δ₁ = [-0.045, -0.054]ᵀ ⊙ [1, 1]ᵀ = [-0.045, -0.054]ᵀ
+$$\frac{\partial L}{\partial h} = W_2^\top \cdot \delta_2 = \begin{bmatrix} 0.5 \\ 0.6 \end{bmatrix} \cdot [-0.09] = [-0.045, -0.054]^\top$$
+$$\sigma'(z_1) = [1, 1]^\top \quad \text{(both } z_1 > 0\text{)}$$
+$$\delta_1 = [-0.045, -0.054]^\top \odot [1, 1]^\top = [-0.045, -0.054]^\top$$
 
-∂L/∂W₁ = δ₁ · xᵀ = [[-0.045], [-0.054]] @ [1, 2] = [[-0.045, -0.090], [-0.054, -0.108]]
-∂L/∂b₁ = [-0.045, -0.054]ᵀ
-```
+$$\frac{\partial L}{\partial W_1} = \delta_1 \cdot x^\top = \begin{bmatrix} -0.045 \\ -0.054 \end{bmatrix} \cdot [1, 2] = \begin{bmatrix} -0.045 & -0.090 \\ -0.054 & -0.108 \end{bmatrix}$$
+$$\frac{\partial L}{\partial b_1} = [-0.045, -0.054]^\top$$
 
 ---
 
@@ -290,9 +262,8 @@ def numerical_gradient(f, w, eps=1e-5):
 ```
 
 Relative error check:
-```
-||grad_analytical - grad_numerical|| / (||grad_analytical|| + ||grad_numerical||) < 1e-5
-```
+
+$$\frac{\|\nabla_{\text{analytical}} - \nabla_{\text{numerical}}\|}{\|\nabla_{\text{analytical}}\| + \|\nabla_{\text{numerical}}\|} < 10^{-5}$$
 
 ---
 
@@ -309,37 +280,36 @@ Backprop applies chain rule systematically:
 
 ### The Transpose Pattern
 
-Forward through W means backward through Wᵀ.
+Forward through $W$ means backward through $W^\top$.
 
-Forward: z = Wx
-Backward: ∂L/∂x = Wᵀ(∂L/∂z)
+Forward: $z = Wx$
+Backward: $\frac{\partial L}{\partial x} = W^\top \frac{\partial L}{\partial z}$
 
-The Jacobian ∂z/∂x = W, and we left-multiply by the upstream gradient.
+The Jacobian $\frac{\partial z}{\partial x} = W$, and we left-multiply by the upstream gradient.
 
 ---
 
 ## Vanishing and Exploding Gradients
 
-For L layers, the gradient at layer 1 involves:
-```
-∂L/∂W₁ ∝ Wₗᵀ · ... · W₂ᵀ · σ'(z_{L-1}) ⊙ ... ⊙ σ'(z₁)
-```
+For $L$ layers, the gradient at layer 1 involves:
+
+$$\frac{\partial L}{\partial W_1} \propto W_L^\top \cdot \ldots \cdot W_2^\top \cdot \sigma'(z_{L-1}) \odot \ldots \odot \sigma'(z_1)$$
 
 ### Vanishing
 
-If |σ'(z)| < 1 (sigmoid saturates at max 0.25) and ||Wᵢ|| < 1:
+If $|\sigma'(z)| < 1$ (sigmoid saturates at max 0.25) and $\|W_i\| < 1$:
 - Product of many small numbers → gradient vanishes
 - Early layers learn slowly
 
 ### Exploding
 
-If ||Wᵢ|| > 1:
+If $\|W_i\| > 1$:
 - Product grows exponentially
 - Gradients become huge, training diverges
 
 ### Solutions
 
-1. **ReLU:** σ'(z) = 1 for z > 0
+1. **ReLU:** $\sigma'(z) = 1$ for $z > 0$
 2. **Proper initialization:** Xavier/He initialization
 3. **Batch normalization:** Normalize activations
 4. **Residual connections:** Skip connections allow gradient flow
@@ -431,7 +401,7 @@ class MLP:
 ### Derivations
 1. [ ] Derive backprop for a 3-layer MLP
 2. [ ] Derive the gradient for cross-entropy loss with softmax output
-3. [ ] Show that sigmoid derivative is σ(1-σ)
+3. [ ] Show that sigmoid derivative is $\sigma(1-\sigma)$
 
 ### Implementations
 1. [ ] Implement the MLP class above and train on XOR

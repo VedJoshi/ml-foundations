@@ -2,83 +2,72 @@
 
 ## Setup
 
-Binary classification: x ∈ ℝᵈ → y ∈ {0, 1}
+Binary classification: $x \in \mathbb{R}^d \to y \in \{0, 1\}$
 
-Model probability P(y = 1 | x):
-```
-z = wᵀx + b
-p = σ(z) = 1/(1 + e^{-z})
-```
+Model probability $P(y = 1 | x)$:
+
+$$z = w^\top x + b$$
+$$p = \sigma(z) = \frac{1}{1 + e^{-z}}$$
 
 ---
 
 ## Sigmoid Properties
 
-```
-σ(z) ∈ (0, 1)
-σ(0) = 0.5
-σ(-z) = 1 - σ(z)
-σ'(z) = σ(z)(1 - σ(z))
-```
+$$\sigma(z) \in (0, 1)$$
+$$\sigma(0) = 0.5$$
+$$\sigma(-z) = 1 - \sigma(z)$$
+$$\sigma'(z) = \sigma(z)(1 - \sigma(z))$$
 
 **From log-odds:**
-```
-log(p/(1-p)) = wᵀx + b  →  p = σ(wᵀx + b)
-```
 
-**Decision boundary:** wᵀx + b = 0 (hyperplane)
+$$\log\frac{p}{1-p} = w^\top x + b \quad \Rightarrow \quad p = \sigma(w^\top x + b)$$
+
+**Decision boundary:** $w^\top x + b = 0$ (hyperplane)
 
 ---
 
 ## Loss: Binary Cross-Entropy
 
-Bernoulli likelihood: P(y|x; w) = p^y(1-p)^{1-y}
+Bernoulli likelihood: $P(y|x; w) = p^y(1-p)^{1-y}$
 
-Log-likelihood: log L = Σᵢ [yᵢ log(pᵢ) + (1-yᵢ) log(1-pᵢ)]
+Log-likelihood: $\log L = \sum_i [y_i \log(p_i) + (1-y_i) \log(1-p_i)]$
 
 **BCE loss (negative log-likelihood):**
-```
-J(w) = -Σᵢ [yᵢ log(pᵢ) + (1-yᵢ) log(1-pᵢ)]
-```
+
+$$J(w) = -\sum_i [y_i \log(p_i) + (1-y_i) \log(1-p_i)]$$
 
 ---
 
 ## Gradient Derivation
 
-For single sample with p = σ(z), z = wᵀx:
+For single sample with $p = \sigma(z)$, $z = w^\top x$:
 
-```
-∂L/∂p = (p - y) / [p(1-p)]
-∂p/∂z = p(1-p)
-∂z/∂w = x
-```
+$$\frac{\partial L}{\partial p} = \frac{p - y}{p(1-p)}$$
+$$\frac{\partial p}{\partial z} = p(1-p)$$
+$$\frac{\partial z}{\partial w} = x$$
 
 Chain rule:
-```
-∂L/∂w = [(p - y)/p(1-p)] · [p(1-p)] · x = (p - y)x
-```
+
+$$\frac{\partial L}{\partial w} = \frac{p - y}{p(1-p)} \cdot p(1-p) \cdot x = (p - y)x$$
 
 **Full gradient:**
-```
-∇J = Σᵢ (pᵢ - yᵢ)xᵢ = Xᵀ(p - y)
-```
 
-Compare to linear regression: same structure, predictions are σ(Xw) instead of Xw.
+$$\nabla J = \sum_i (p_i - y_i)x_i = X^\top(p - y)$$
+
+Compare to linear regression: same structure, predictions are $\sigma(Xw)$ instead of $Xw$.
 
 ---
 
 ## Regularization
 
-```
-J_reg = J + (λ/2)||w||²
-∇J_reg = Xᵀ(p - y) + λw
-```
+$$J_{\text{reg}} = J + \frac{\lambda}{2}\|w\|^2$$
+$$\nabla J_{\text{reg}} = X^\top(p - y) + \lambda w$$
 
 ---
 
 ## No Closed Form
 
-σ nonlinear → Xᵀ(σ(Xw) - y) = 0 has no closed form.
+$\sigma$ nonlinear → $X^\top(\sigma(Xw) - y) = 0$ has no closed form.
 
 Use: gradient descent, Newton's method, L-BFGS.
 
@@ -86,30 +75,27 @@ Use: gradient descent, Newton's method, L-BFGS.
 
 ## Convexity
 
-Hessian: H = XᵀDX where D = diag(pᵢ(1-pᵢ)) > 0
+Hessian: $H = X^\top DX$ where $D = \text{diag}(p_i(1-p_i)) > 0$
 
-H is PSD → J convex → any local minimum is global.
+$H$ is PSD → $J$ convex → any local minimum is global.
 
 ---
 
 ## Multi-Class: Softmax
 
-```
-P(y = k | x) = exp(wₖᵀx) / Σⱼ exp(wⱼᵀx)
-```
+$$P(y = k | x) = \frac{\exp(w_k^\top x)}{\sum_j \exp(w_j^\top x)}$$
 
-Categorical cross-entropy: L = -Σₖ yₖ log(pₖ)
+Categorical cross-entropy: $L = -\sum_k y_k \log(p_k)$
 
-Gradient: ∂L/∂wₖ = (pₖ - yₖ)x
+Gradient: $\frac{\partial L}{\partial w_k} = (p_k - y_k)x$
 
 ---
 
 ## Numerical Stability
 
 Stable BCE formulation:
-```
-L = max(z, 0) - yz + log(1 + e^{-|z|})
-```
+
+$$L = \max(z, 0) - yz + \log(1 + e^{-|z|})$$
 
 ---
 
@@ -144,10 +130,10 @@ class LogisticRegression:
 
 | Metric | Formula |
 |--------|---------|
-| Accuracy | (TP + TN) / Total |
-| Precision | TP / (TP + FP) |
-| Recall | TP / (TP + FN) |
-| F1 | 2·Precision·Recall / (Precision + Recall) |
+| Accuracy | $(\text{TP} + \text{TN}) / \text{Total}$ |
+| Precision | $\text{TP} / (\text{TP} + \text{FP})$ |
+| Recall | $\text{TP} / (\text{TP} + \text{FN})$ |
+| F1 | $2 \cdot \text{Precision} \cdot \text{Recall} / (\text{Precision} + \text{Recall})$ |
 
 ---
 
@@ -160,7 +146,7 @@ class LogisticRegression:
 
 ## Exercises
 
-1. Derive gradient (show p(1-p) cancellation)
+1. Derive gradient (show $p(1-p)$ cancellation)
 2. Prove Hessian is PSD
 3. Derive softmax gradient
 4. Implement, compare to sklearn

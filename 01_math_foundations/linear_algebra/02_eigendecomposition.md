@@ -2,63 +2,61 @@
 
 ## Definition
 
-For A ∈ ℝⁿˣⁿ, λ is **eigenvalue**, v ≠ 0 is **eigenvector** if:
-```
-Av = λv
-```
+For $A \in \mathbb{R}^{n \times n}$, $\lambda$ is **eigenvalue**, $v \neq 0$ is **eigenvector** if:
+
+$$Av = \lambda v$$
 
 ### Finding Eigenvalues
 
-(A - λI)v = 0 requires det(A - λI) = 0 (characteristic polynomial).
+$(A - \lambda I)v = 0$ requires $\det(A - \lambda I) = 0$ (characteristic polynomial).
 
-For 2×2:
-```
-det(A - λI) = λ² - tr(A)λ + det(A)
-```
+For $2 \times 2$:
 
-General: tr(A) = Σλᵢ, det(A) = Πλᵢ
+$$\det(A - \lambda I) = \lambda^2 - \text{tr}(A)\lambda + \det(A)$$
+
+General: $\text{tr}(A) = \sum_i \lambda_i$, $\det(A) = \prod_i \lambda_i$
 
 ---
 
 ## Properties
 
 ### General Matrices
-- n eigenvalues (with multiplicity), possibly complex
+- $n$ eigenvalues (with multiplicity), possibly complex
 - Distinct eigenvalues → linearly independent eigenvectors
 
-### Symmetric (A = Aᵀ)
+### Symmetric ($A = A^\top$)
 - All eigenvalues real
 - Distinct eigenvalues → orthogonal eigenvectors
-- Always diagonalizable: A = QΛQᵀ, Q orthogonal
+- Always diagonalizable: $A = Q\Lambda Q^\top$, $Q$ orthogonal
 
 ---
 
 ## Decomposition
 
-**General:** A = VΛV⁻¹
+**General:** $A = V\Lambda V^{-1}$
 
-**Symmetric:** A = QΛQᵀ = Σᵢ λᵢqᵢqᵢᵀ (spectral decomposition)
+**Symmetric:** $A = Q\Lambda Q^\top = \sum_i \lambda_i q_i q_i^\top$ (spectral decomposition)
 
 ---
 
 ## Applications
 
 ### PCA
-Covariance C = (1/n)XᵀX:
+Covariance $C = \frac{1}{n}X^\top X$:
 - Eigenvectors = principal directions
 - Eigenvalues = variance per direction
 
 ### Gradient Descent
-For L(w) = (1/2)wᵀAw - bᵀw:
-- Converges if α < 2/λ_max
-- Condition number κ = λ_max/λ_min → convergence speed
+For $L(w) = \frac{1}{2}w^\top Aw - b^\top w$:
+- Converges if $\alpha < 2/\lambda_{\max}$
+- Condition number $\kappa = \lambda_{\max}/\lambda_{\min}$ → convergence speed
 
 ### Positive Definiteness
-- PD: all λᵢ > 0 ↔ xᵀAx > 0 ∀x ≠ 0
-- PSD: all λᵢ ≥ 0
+- PD: all $\lambda_i > 0$ ↔ $x^\top Ax > 0$ $\forall x \neq 0$
+- PSD: all $\lambda_i \geq 0$
 
 ### Matrix Powers
-Aᵏ = VΛᵏV⁻¹
+$A^k = V\Lambda^k V^{-1}$
 
 ---
 
@@ -75,20 +73,20 @@ eigenvalues, eigenvectors = np.linalg.eigh(A)  # symmetric
 
 | Property | Formula |
 |----------|---------|
-| Definition | Av = λv |
-| Characteristic eq | det(A - λI) = 0 |
-| Symmetric | A = QΛQᵀ |
-| Spectral | A = Σᵢ λᵢqᵢqᵢᵀ |
-| Power | Aᵏ = VΛᵏV⁻¹ |
-| Trace | tr(A) = Σλᵢ |
-| Determinant | det(A) = Πλᵢ |
-| Inverse | λ(A⁻¹) = 1/λ(A) |
+| Definition | $Av = \lambda v$ |
+| Characteristic eq | $\det(A - \lambda I) = 0$ |
+| Symmetric | $A = Q\Lambda Q^\top$ |
+| Spectral | $A = \sum_i \lambda_i q_i q_i^\top$ |
+| Power | $A^k = V\Lambda^k V^{-1}$ |
+| Trace | $\text{tr}(A) = \sum_i \lambda_i$ |
+| Determinant | $\det(A) = \prod_i \lambda_i$ |
+| Inverse | $\lambda(A^{-1}) = 1/\lambda(A)$ |
 
 ---
 
 ## Exercises
 
-1. λ = 0 → is A invertible?
-2. Prove λ(Aᵀ) = λ(A)
-3. A orthogonal → possible eigenvalues?
+1. $\lambda = 0$ → is $A$ invertible?
+2. Prove $\lambda(A^\top) = \lambda(A)$
+3. $A$ orthogonal → possible eigenvalues?
 4. Implement power iteration
