@@ -1,7 +1,5 @@
 # Multi-Layer Perceptron and Backpropagation
 
-This is the most important derivation in deep learning. Every neural network - transformers, CNNs, RNNs - trains using the same principle: forward pass to compute loss, backward pass to compute gradients, update weights. If I can't derive backprop for a 2-layer MLP by hand, I don't truly understand how neural networks learn.
-
 ---
 
 ## Architecture
@@ -11,10 +9,15 @@ A 2-layer MLP (one hidden layer):
 ```
 Input x ∈ ℝ^{d_in}
     ↓
-Hidden layer: h = σ(W₁x + b₁), where W₁ ∈ ℝ^{d_h × d_in}, b₁ ∈ ℝ^{d_h}
+Hidden layer: h = σ(W₁x + b₁)
     ↓
-Output layer: ŷ = W₂h + b₂, where W₂ ∈ ℝ^{d_out × d_h}, b₂ ∈ ℝ^{d_out}
+Output layer: ŷ = W₂h + b₂
 ```
+
+Where:
+- W₁ ∈ ℝ^{d_h × d_in}, b₁ ∈ ℝ^{d_h} (hidden layer parameters)
+- W₂ ∈ ℝ^{d_out × d_h}, b₂ ∈ ℝ^{d_out} (output layer parameters)
+- σ is the activation function
 
 For regression with MSE loss:
 ```
@@ -23,26 +26,25 @@ L = (1/2)||ŷ - y||²
 
 ### Notation
 
-I'll use:
 - z₁ = W₁x + b₁ (pre-activation of hidden layer)
-- h = σ(z₁) (post-activation, hidden layer output)
+- h = σ(z₁) (post-activation / hidden layer output)
 - z₂ = W₂h + b₂ (pre-activation of output = final output for regression)
 - ŷ = z₂
 
-The full forward pass:
+Full forward pass:
 ```
 x → z₁ = W₁x + b₁ → h = σ(z₁) → z₂ = W₂h + b₂ → ŷ → L
 ```
 
 ---
 
-## The Goal
+## Goal
 
 Compute all parameter gradients:
 - ∂L/∂W₂, ∂L/∂b₂ (output layer)
 - ∂L/∂W₁, ∂L/∂b₁ (hidden layer)
 
-Then update: θ ← θ - α ∂L/∂θ
+Then update: θ ← θ - α ∂L/∂θ where α is the learning rate.
 
 ---
 
@@ -75,7 +77,7 @@ Since ŷ = z₂:
 δ₂ ≡ ∂L/∂z₂ = ŷ - y
 ```
 
-This is the "output error signal."
+δ₂ is the output error signal.
 
 **∂L/∂W₂:**
 
@@ -105,7 +107,7 @@ In matrix form (outer product):
 
 **∂L/∂h:**
 
-z₂ depends on h, so:
+z₂ depends on h:
 ```
 ∂L/∂hⱼ = Σᵢ (∂L/∂z₂ᵢ)(∂z₂ᵢ/∂hⱼ) = Σᵢ δ₂ᵢ · W₂ᵢⱼ
 ```
@@ -115,7 +117,7 @@ In matrix form:
 ∂L/∂h = W₂ᵀ · δ₂ ∈ ℝ^{d_h}
 ```
 
-The error propagates backward through the transpose of the weight matrix.
+Error propagates backward through the transpose of the weight matrix.
 
 ### Step 3: Backpropagate Through Activation
 
@@ -131,7 +133,7 @@ Element-wise:
 δ₁ ≡ ∂L/∂z₁ = (W₂ᵀδ₂) ⊙ σ'(z₁)
 ```
 
-where ⊙ denotes element-wise multiplication.
+where ⊙ denotes element-wise (Hadamard) multiplication.
 
 ### Step 4: Gradient w.r.t. Hidden Layer
 
@@ -188,27 +190,21 @@ b₁ ← b₁ - α · ∂L/∂b₁
 σ(z) = max(0, z)
 σ'(z) = 1 if z > 0, else 0
 ```
-
-**Pros:** No vanishing gradient for z > 0, computationally simple
-**Cons:** "Dead neurons" if z < 0 always
+No vanishing gradient for z > 0. "Dead neurons" can occur if z < 0 always.
 
 ### Sigmoid
 ```
 σ(z) = 1/(1 + e^{-z})
 σ'(z) = σ(z)(1 - σ(z))
 ```
-
-**Pros:** Smooth, outputs in (0, 1)
-**Cons:** Vanishing gradient for |z| large, not zero-centered
+Outputs in (0, 1). Vanishing gradient for |z| large, not zero-centered.
 
 ### Tanh
 ```
 σ(z) = (e^z - e^{-z})/(e^z + e^{-z})
 σ'(z) = 1 - σ(z)²
 ```
-
-**Pros:** Zero-centered
-**Cons:** Still vanishes for |z| large
+Zero-centered. Still vanishes for |z| large.
 
 ---
 
@@ -236,13 +232,11 @@ L = (1/2m) ||Ŷ - Y||²_F              # scalar (Frobenius norm)
 ∂L/∂b₁ = sum over columns of Δ₁      # (d_h,)
 ```
 
-The key difference: matrix multiplications replace vector outer products, and we sum over samples for bias gradients.
+Matrix multiplications replace vector outer products. Bias gradients sum over samples.
 
 ---
 
-## Concrete Numerical Example
-
-Let me verify with tiny numbers:
+## Numerical Example
 
 **Setup:**
 - d_in = 2, d_h = 2, d_out = 1
@@ -280,11 +274,11 @@ L = 0.5 * (0.91 - 1)² = 0.00405
 
 ## Gradient Checking
 
-To verify backprop implementation, compare analytical gradient to numerical approximation:
+Compare analytical gradient to numerical approximation:
 
 ```python
 def numerical_gradient(f, w, eps=1e-5):
-    """Compute numerical gradient using central difference."""
+    """Central difference approximation."""
     grad = np.zeros_like(w)
     for i in range(len(w)):
         w_plus = w.copy()
@@ -295,31 +289,32 @@ def numerical_gradient(f, w, eps=1e-5):
     return grad
 ```
 
-If ||grad_analytical - grad_numerical|| / (||grad_analytical|| + ||grad_numerical||) < 1e-5, the implementation is likely correct.
+Relative error check:
+```
+||grad_analytical - grad_numerical|| / (||grad_analytical|| + ||grad_numerical||) < 1e-5
+```
 
 ---
 
-## Why Does Backprop Work?
+## Chain Rule on Computational Graphs
 
-### Chain Rule on Computational Graphs
-
-Every computation can be represented as a directed acyclic graph:
+Every computation forms a directed acyclic graph:
 - Nodes: intermediate values
 - Edges: operations
 
-Backprop = applying the chain rule systematically:
+Backprop applies chain rule systematically:
 1. Compute all forward values, caching intermediate results
 2. Start from loss, propagate gradients backward
 3. At each node, multiply incoming gradient by local derivative
 
-### The "Transpose" Pattern
+### The Transpose Pattern
 
-Notice: forward through W means backward through Wᵀ.
+Forward through W means backward through Wᵀ.
 
 Forward: z = Wx
 Backward: ∂L/∂x = Wᵀ(∂L/∂z)
 
-This is because ∂z/∂x = W (the Jacobian), and we left-multiply by the upstream gradient.
+The Jacobian ∂z/∂x = W, and we left-multiply by the upstream gradient.
 
 ---
 
@@ -332,9 +327,9 @@ For L layers, the gradient at layer 1 involves:
 
 ### Vanishing
 
-If |σ'(z)| < 1 (sigmoid saturates at 0.25 max), and ||Wᵢ|| < 1:
+If |σ'(z)| < 1 (sigmoid saturates at max 0.25) and ||Wᵢ|| < 1:
 - Product of many small numbers → gradient vanishes
-- Early layers learn very slowly
+- Early layers learn slowly
 
 ### Exploding
 
@@ -344,7 +339,7 @@ If ||Wᵢ|| > 1:
 
 ### Solutions
 
-1. **ReLU:** σ'(z) = 1 for z > 0, no vanishing
+1. **ReLU:** σ'(z) = 1 for z > 0
 2. **Proper initialization:** Xavier/He initialization
 3. **Batch normalization:** Normalize activations
 4. **Residual connections:** Skip connections allow gradient flow
@@ -448,23 +443,3 @@ class MLP:
 1. [ ] Visualize how loss landscape changes with depth
 2. [ ] Observe vanishing gradients with sigmoid vs ReLU
 3. [ ] Compare different initialization schemes
-
----
-
-## Key Takeaways
-
-1. Backprop is chain rule applied to computational graphs
-2. Error signals propagate backward through Wᵀ
-3. Activation derivatives gate gradient flow
-4. Weight gradients are outer products of errors and activations
-5. Cache forward values - needed for backward pass
-6. Always verify with gradient checking
-
----
-
-## Next Steps
-
-- [ ] Cross-entropy loss and softmax (classification)
-- [ ] Weight initialization theory (Xavier, He)
-- [ ] Batch normalization
-- [ ] Transition to PyTorch
